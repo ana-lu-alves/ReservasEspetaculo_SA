@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Assentos - Alice no País das Maravilhas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* PALETA SEXTA ART - ALICE NO PAÍS DAS MARAVILHAS */
+            --cor-primaria: #8A1C59;     /* Magenta/Roxo médio do vestido e flores */
+            --cor-fundo-pagina: #260924; /* Roxo bem escuro/mágico para o fundo */
+            --cor-texto-escuro: #3B0D28; /* Roxo profundo para textos em fundo claro */
+            --cor-hover: #A8236C;        /* Magenta mais claro para hover */
+            
+            /* PALETA DE DETALHES */
+            --cor-destaque: #D12573;     /* Rosa choque para seleção e bordas */
+            --cor-erro: #E91E63;         /* Rosa para erros/avisos */
+            
+            /* ESTADOS DOS ASSENTOS E NEUTROS */
+            --verde-livre: #48BB78;
+            --cinza-ocupado: #A0AEC0;
+            --branco: #FFFFFF;
+            --borda: #E2D5DF;            /* Cinza levemente arroxeado */
+            --cinza-fundo: #FCF9FA;      /* Fundo de caixas de texto */
+        }
+
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            text-align: center; 
+            background-color: var(--cor-fundo-pagina); 
+            background-image: radial-gradient(circle at top center, #511545 0%, #1a0518 100%);
+            background-attachment: fixed;
+            color: var(--cor-texto-escuro);
+            padding: 20px 10px; 
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* DECORAÇÕES MÁGICAS FLUTUANTES (FUNDO) */
+        .decoracao {
+            position: fixed;
+            font-size: 2.5rem;
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+            animation: flutuar 8s ease-in-out infinite alternate;
+        }
+        .d1 { top: 10%; left: 5%; animation-delay: 0s; font-size: 3rem;} /* Rosa */
+        .d2 { top: 25%; right: 8%; animation-delay: 1s; font-size: 4rem;} /* Relógio */
+        .d3 { top: 50%; left: 3%; animation-delay: 2s; font-size: 2.5rem;} /* Bule/Xícara */
+        .d4 { top: 75%; right: 6%; animation-delay: 0.5s; font-size: 3.5rem;} /* Cartas */
+        .d5 { top: 85%; left: 8%; animation-delay: 3s; font-size: 2rem;} /* Chave/Coelho */
+        .d6 { top: 40%; right: 12%; animation-delay: 1.5s; font-size: 2.5rem;} /* Cartas */
+
+        @keyframes flutuar {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(10deg); }
+            100% { transform: translateY(5px) rotate(-10deg); }
+        }
+
+        /* TELA DE SUCESSO (ESTILO PÓS-COMPRA) */
+        .tela-sucesso-container {
+            background-color: var(--branco);
+            width: 100%;
+            max-width: 550px;
+            margin: 60px auto;
+            padding: 40px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            box-sizing: border-box;
+            border-top: 6px solid var(--verde-livre); 
+            text-align: center;
+        }
+
+        /* CABEÇALHO */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; 
+            gap: 20px; 
+            width: 100%;
+            max-width: 850px; 
+            margin: 0 auto 20px auto; 
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-sizing: border-box;
+            backdrop-filter: blur(5px);
+        }
+
+        .logo-escola {
+            max-height: 80px; 
+            border-radius: 50%; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+            object-fit: cover;
+            border: 3px solid var(--branco);
+            background-color: #fff;
+        }
+
+        .header-text {
+            text-align: left;
+            color: var(--branco);
+        }
+
+        .header-text .apresenta {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            color: #F8BBD0; 
+            font-weight: 700;
+        }
+        
+        .header-text h2 {
+            font-size: 2.2rem; 
+            margin: 2px 0; 
+            font-weight: 900;
+            color: var(--branco);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            font-family: 'Times New Roman', serif; 
+            letter-spacing: 1px;
+        }
+
+        .header-text .direcao {
+            font-size: 1rem;
+            margin: 0;
+            font-style: italic;
+            color: #F8BBD0;
+        }
+
+        /* CONTÊINER PRINCIPAL */
+        .form-unificado {
+            background-color: var(--branco);
+            width: 100%;
+            max-width: 850px; 
+            margin: 0 auto;
+            padding: 25px; 
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border-top: 6px solid var(--cor-destaque);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* SEÇÃO DE INFORMAÇÕES DO ESPETÁCULO */
+        .espetaculo-info {
+            width: 100%;
+            background-color: var(--cinza-fundo);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--borda);
+            box-sizing: border-box;
+            text-align: left;
+        }
+
+        .grid-info-evento {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--borda);
+        }
+
+        .info-item {
+            font-size: 0.95rem;
+            color: var(--cor-texto-escuro);
+        }
+
+        .info-item strong {
+            color: var(--cor-destaque);
+        }
+
+        /* ESTILOS DO NOVO TEXTO POÉTICO */
+        .texto-poetico {
+            margin-bottom: 15px;
+        }
+
+        .citacao {
+            font-style: italic;
+            font-weight: 800;
+            color: var(--cor-primaria);
+            font-size: 1.05rem;
+            line-height: 1.5;
+            margin: 0 0 15px 0;
+            padding-left: 10px;
+            border-left: 3px solid var(--cor-destaque);
+        }
+
+        .sinopse {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0 0 15px 0;
+            color: #4A4A4A;
+        }
+
+        .destaque-poetico {
+            font-weight: 800;
+            color: var(--cor-destaque);
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin: 20px 0;
+            background-color: #FCE4EC;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .chamada {
+            font-size: 1rem;
+            font-weight: 800;
+            margin: 0;
+            color: var(--cor-primaria);
+            text-align: center;
+        }
+
+        /* DADOS DA RESERVA */
+        .sessao-dados {
+            width: 100%;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed var(--borda);
+        }
+
+        .sessao-dados h3, .cabecalho-mapa h3, .sessao-confirmacao h3 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            color: var(--cor-texto-escuro);
+            text-align: left;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            width: 100%;
+        }
+
+        .campo-grupo {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .campo-grupo label {
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: var(--cor-texto-escuro);
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            box-sizing: border-box; 
+            border: 2px solid var(--borda);
+            border-radius: 8px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.95rem;
+            color: var(--cor-texto-escuro);
+            transition: all 0.3s ease;
+            background-color: #FAFAFA;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--cor-destaque);
+            background-color: var(--branco);
+            box-shadow: 0 0 0 3px rgba(209, 37, 115, 0.1);
+        }
+
+        /* MAPA DE ASSENTOS */
+        .sessao-mapa {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed var(--borda);
+        }
+
+        .cabecalho-mapa {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .teatro-container {
+            width: 100%;
+            position: relative;
+            background-color: var(--cinza-fundo);
+            border-radius: 10px;
+            border: 2px solid var(--borda);
+            box-sizing: border-box;
+            transition: opacity 0.3s ease;
+            pointer-events: auto; 
+        }
+
+        .palco-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .palco {
+            background-color: var(--cor-primaria);
+            color: var(--branco);
+            width: 60%;
+            max-width: 300px;
+            padding: 10px;
+            border-radius: 0 0 12px 12px; 
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            margin: 0; 
+            box-shadow: 0 6px 15px rgba(138, 28, 89, 0.3);
+            border-bottom: 4px solid var(--cor-destaque);
+            pointer-events: auto;
+        }
+
+        .area-teatro {
+            display: block; 
+            text-align: center; 
+            overflow-x: auto; 
+            width: 100%; 
+            box-sizing: border-box;
+            -webkit-overflow-scrolling: touch; 
+            padding: 25px 15px 15px 15px;
+        }
+
+        #gerador-mapa {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 10px;
+        }
+
+        .fileira {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; 
+            margin-bottom: 5px; 
+            min-width: max-content;
+        }
+
+        .bloco-assentos { display: flex; gap: 3px; }
+        .bloco-esq { justify-content: flex-end; }
+        .bloco-cen { justify-content: center; }
+        .bloco-dir { justify-content: flex-start; }
+
+        .poltrona {
+            width: 24px; 
+            height: 24px; 
+            background-color: var(--verde-livre);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px; 
+            font-weight: 800;
+            color: white; 
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            user-select: none;
+            flex-shrink: 0;
+            touch-action: manipulation; 
+        }
+
+        .poltrona.invisivel {
+            visibility: hidden;
+            pointer-events: none;
+            box-shadow: none;
+        }
+
+        .poltrona:not(.invisivel):not(.ocupada):not(.selecionada):hover { 
+            transform: scale(1.15);
+            background-color: #38A169;
+        }
+        
+        .poltrona.ocupada {
+            background-color: var(--cinza-ocupado) !important; 
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.8;
+            color: #E2E8F0;
+        }
+        .poltrona.ocupada:hover { 
+            transform: none; 
+        }
+        
+        .poltrona.selecionada {
+            background-color: var(--cor-destaque) !important; 
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px var(--cor-primaria);
+        }
+        .poltrona.selecionada:hover {
+            transform: scale(1.15); 
+        }
+
+        .dica-mobile {
+            display: none;
+            font-size: 0.85rem;
+            color: #718096;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        /* LEGENDA */
+        .legenda {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-weight: 700;
+            background: var(--cinza-fundo);
+            padding: 10px 25px;
+            border-radius: 50px;
+            color: var(--cor-texto-escuro);
+            border: 1px solid var(--borda);
+            margin-top: 20px;
+            flex-wrap: wrap; 
+        }
+
+        .item-legenda { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+        .box-legenda { width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+        .box-livre { background-color: var(--verde-livre); }
+        .box-selecionada { background-color: var(--cor-destaque); }
+        .box-ocupada { background-color: var(--cinza-ocupado); }
+
+        /* CONFIRMAÇÃO */
+        .sessao-confirmacao {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sessao-confirmacao p {
+            background-color: var(--cinza-fundo); 
+            border: 1px solid var(--borda); 
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 0;
+            width: 100%;
+            box-sizing: border-box;
+            color: var(--cor-texto-escuro);
+        }
+
+        #assentos-lista { color: var(--cor-destaque); font-weight: 900; font-size: 1.15rem; display: block; margin-top: 8px;}
+
+        /* MENSAGENS DE STATUS (PÍLULAS) */
+        .status-msg {
+            display: none; 
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 800; 
+            font-size: 0.95rem;
+            margin: 10px auto; 
+            width: fit-content;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        #loading { 
+            background-color: #FEFCBF; 
+            color: #975A16; 
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        button { 
+            width: 100%;
+            max-width: 350px;
+            padding: 16px; 
+            background-color: var(--cor-primaria); 
+            color: var(--branco); 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1.05rem; 
+            font-weight: 900;
+            font-family: 'Nunito', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(138, 28, 89, 0.3);
+        }
+
+        button:hover { 
+            background-color: var(--cor-hover); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(138, 28, 89, 0.4);
+        }
+
+        button:disabled {
+            background-color: var(--cinza-ocupado);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* REGRAS ESPECÍFICAS PARA CELULARES */
+        @media (max-width: 768px) {
+            .header-container { flex-direction: column; gap: 15px; text-align: center; background-color: transparent; backdrop-filter: none;}
+            .header-text { text-align: center; }
+            .header-text h2 { font-size: 1.8rem; }
+            .cabecalho-mapa { text-align: center; }
+            .cabecalho-mapa h3 { text-align: center; justify-content: center; }
+            .sessao-confirmacao h3 { text-align: center; justify-content: center;}
+            .dica-mobile { display: block; } 
+            .poltrona { width: 26px; height: 26px; font-size: 9px; } 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ÍCONES FLUTUANTES DE FUNDO (Estética Alice) -->
+    <div class="decoracao d1">🌹</div>
+    <div class="decoracao d2">🕰️</div>
+    <div class="decoracao d3">☕</div>
+    <div class="decoracao d4">♠️</div>
+    <div class="decoracao d5">🐇</div>
+    <div class="decoracao d6">♥️</div>
+
+    <!-- TELA DE SUCESSO DA RESERVA (Oculta por padrão) -->
+    <div id="tela-sucesso-reserva" class="tela-sucesso-container" style="display: none;">
+        <h2 style="color: var(--verde-livre); margin-top: 0;">✅ Reserva Concluída!</h2>
+        <p>Seus assentos foram reservados com sucesso.</p>
+        <p style="font-weight: 800; color: var(--cor-texto-escuro);">Aguardando confirmação de pagamento.</p>
+        <hr style="border: none; border-top: 1px dashed var(--borda); margin: 20px 0;">
+        <p style="font-size: 0.95rem; color: #718096;">Você já pode fechar esta página e retornar ao WhatsApp.</p>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL DO SISTEMA -->
+    <div id="conteudo-sistema" style="display: block;">
+        <div class="header-container">
+            <img src="Logo_escola.jpg" alt="Logo Sexta Art" class="logo-escola" onerror="this.style.display='none'">
+            <div class="header-text">
+                <p class="apresenta">Sexta Art apresenta:</p>
+                <h2>Alice no País das Maravilhas</h2>
+                <p class="direcao">Uma viagem de dança, imaginação e encantamento.</p>
+            </div>
+        </div>
+
+        <div class="form-unificado">
+            
+            <div class="espetaculo-info">
+                <div class="grid-info-evento">
+                    <div class="info-item"><strong>📅 Data:</strong> 17 de Dezembro de 2026</div>
+                    <div class="info-item"><strong>🕒 Horário:</strong> 19h30</div>
+                    <div class="info-item"><strong>📍 Local:</strong> Teatro Madre Esperança Garrido</div>
+                </div>
+                
+                <div class="texto-poetico">
+                    <p class="citacao">
+                        🌙 "Você poderia me dizer qual caminho devo seguir?"<br>
+                        ✨ "Isso depende de onde você quer chegar."
+                    </p>
+                    <p class="sinopse">
+                        Este ano, o caminho nos leva a um mundo onde a imaginação não tem limites.<br><br>
+                        Entre relógios apressados, chás encantados, flores mágicas e personagens inesquecíveis, nossos bailarinos darão vida a uma das histórias mais amadas de todos os tempos.
+                    </p>
+                    <div class="destaque-poetico">
+                        Uma noite para sonhar.<br>
+                        Uma noite para se emocionar.<br>
+                        Uma noite para acreditar na magia da dança.
+                    </div>
+                </div>
+
+                <p class="chamada">💗 Venha se encantar com mais uma produção da Sexta Art Centro de Dança.</p>
+            </div>
+            
+            <div class="sessao-dados">
+                <h3>🎟️ 1. Dados da Reserva</h3>
+                <div class="grid-inputs">
+                    <div class="campo-grupo">
+                        <label for="nomePai">Nome do Responsável</label>
+                        <input type="text" id="nomePai" placeholder="Ex: Maria Alice" required>
+                    </div>
+                    <div class="campo-grupo">
+                        <label for="nomeFilha">Nome da Bailarina</label>
+                        <input type="text" id="nomeFilha" placeholder="Ex: Betina Bailarina" required>
+                    </div>
+                    <div class="campo-grupo">
+                        <label for="email">E-mail para Ingressos</label>
+                        <input type="email" id="email" placeholder="Ex: email@exemplo.com" required>
+                    </div>
+                    <div class="campo-grupo">
+                        <label for="telefone">WhatsApp</label>
+                        <input type="text" id="telefone" placeholder="Ex: (62) 99999-9999" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sessao-mapa">
+                <div class="cabecalho-mapa">
+                    <h3>🎭 2. Selecione os assentos</h3>
+                </div>
+
+                <div class="teatro-container" id="container-do-teatro">
+                    <div class="palco-wrapper">
+                        <div class="palco">PALCO</div>
+                    </div>
+                    <div class="area-teatro">
+                        <div id="gerador-mapa"></div>
+                    </div>
+                </div>
+                
+                <div class="dica-mobile">👈 Arraste para os lados para ver todo o mapa 👉</div>
+
+                <div class="legenda">
+                    <div class="item-legenda"><div class="box-legenda box-livre"></div> Livre</div>
+                    <div class="item-legenda"><div class="box-legenda box-selecionada"></div> Selecionada</div>
+                    <div class="item-legenda"><div class="box-legenda box-ocupada"></div> Ocupada</div>
+                </div>
+            </div>
+
+            <div class="sessao-confirmacao">
+                <h3 style="align-self: flex-start;">✨ 3. Confirme seus Lugares</h3>
+                <p>
+                    Assentos selecionados:<br><strong id="assentos-lista">Nenhum</strong>
+                </p>
+
+                <div id="loading" class="status-msg">Processando reserva... Não feche a página.</div>
+
+                <button id="btn-confirmar" onclick="enviarReserva()">Confirmar e Reservar</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let poltronasEscolhidas = [];
+
+        const estruturaTeatro = [
+            { row: 'A', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
+            { row: 'B', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
+            { row: 'C', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
+            { row: 'D', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
+            { row: 'E', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
+            { row: 'F', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
+            { row: 'G', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
+            { row: 'H', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
+            { row: 'I', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
+            { corredor: true },
+            { row: 'J', esq: [32, 25], cen: [24, 9], dir: [8, 3] },
+            { row: 'K', esq: [32, 25], cen: [24, 9], dir: [8, 2] },
+            { row: 'L', esq: [33, 25], cen: [24, 9], dir: [8, 1] },
+            { row: 'M', esq: [33, 25], cen: [24, 9], dir: [8, 1] },
+            { row: 'N', esq: [33, 25], cen: [24, 9], dir: [8, 1] },
+            { row: 'O', esq: [33, 25], cen: [24, 9], dir: [8, 1] },
+            { row: 'P', esq: [38, 29], cen: [28, 11], dir: [10, 1] }
+        ];
+
+        const MAX_ESQ = 10; 
+        const MAX_CEN = 18; 
+        const MAX_DIR = 10; 
+
+        function desenharMapa() {
+            const containerMapa = document.getElementById('gerador-mapa');
+            containerMapa.innerHTML = ""; 
+            
+            estruturaTeatro.forEach(linha => {
+                if (linha.corredor) {
+                    const espaco = document.createElement('div');
+                    espaco.style.height = '20px'; 
+                    containerMapa.appendChild(espaco);
+                    return;
+                }
+
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'fileira';
+
+                const criarBlocoAlinhado = (limites, alinhamento, maxCapacidade) => {
+                    const bloco = document.createElement('div');
+                    bloco.className = 'bloco-assentos ' + alinhamento;
+                    
+                    const qtdPoltronas = limites[0] - limites[1] + 1;
+                    const vagasVazias = maxCapacidade - qtdPoltronas;
+
+                    if (alinhamento === 'bloco-esq') {
+                        for(let j=0; j < vagasVazias; j++) {
+                            let ph = document.createElement('div');
+                            ph.className = 'poltrona invisivel';
+                            bloco.appendChild(ph);
+                        }
+                    }
+
+                    if (alinhamento === 'bloco-cen') {
+                        const vaziosLado = Math.floor(vagasVazias / 2);
+                        for(let j=0; j < vaziosLado; j++) {
+                            let ph = document.createElement('div');
+                            ph.className = 'poltrona invisivel';
+                            bloco.appendChild(ph);
+                        }
+                    }
+
+                    for (let i = limites[0]; i >= limites[1]; i--) {
+                        const numFormatado = i.toString().padStart(2, '0');
+                        const idAssento = linha.row + numFormatado;
+
+                        const assento = document.createElement('div');
+                        assento.className = 'poltrona';
+                        assento.id = idAssento;
+                        assento.innerText = idAssento; 
+                        assento.onclick = () => selecionarPoltrona(idAssento);
+
+                        bloco.appendChild(assento);
+                    }
+
+                    if (alinhamento === 'bloco-cen') {
+                        const vaziosLado = Math.floor(vagasVazias / 2);
+                        for(let j=0; j < vaziosLado; j++) {
+                            let ph = document.createElement('div');
+                            ph.className = 'poltrona invisivel';
+                            bloco.appendChild(ph);
+                        }
+                    }
+
+                    if (alinhamento === 'bloco-dir') {
+                        for(let j=0; j < vagasVazias; j++) {
+                            let ph = document.createElement('div');
+                            ph.className = 'poltrona invisivel';
+                            bloco.appendChild(ph);
+                        }
+                    }
+
+                    return bloco;
+                };
+
+                rowDiv.appendChild(criarBlocoAlinhado(linha.esq, 'bloco-esq', MAX_ESQ));
+                rowDiv.appendChild(criarBlocoAlinhado(linha.cen, 'bloco-cen', MAX_CEN));
+                rowDiv.appendChild(criarBlocoAlinhado(linha.dir, 'bloco-dir', MAX_DIR));
+
+                containerMapa.appendChild(rowDiv);
+            });
+        }
+
+        // Ao carregar a página, desenha o mapa livre e ajusta a máscara de telefone
+        window.onload = function() {
+            desenharMapa();
+
+            const inputTelefone = document.getElementById('telefone');
+            if (inputTelefone) {
+                inputTelefone.addEventListener('input', (e) => {
+                    let valor = e.target.value.replace(/\D/g, ""); 
+                    if (valor.length > 11) valor = valor.slice(0, 11); 
+                    valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
+                    valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
+                    e.target.value = valor;
+                });
+            }
+        };
+
+        function selecionarPoltrona(idPoltrona) {
+            const elemento = document.getElementById(idPoltrona);
+            if(elemento.classList.contains('ocupada')) return;
+
+            if(elemento.classList.contains('selecionada')) {
+                elemento.classList.remove('selecionada');
+                poltronasEscolhidas = poltronasEscolhidas.filter(p => p !== idPoltrona);
+            } else {
+                elemento.classList.add('selecionada');
+                poltronasEscolhidas.push(idPoltrona);
+            }
+            document.getElementById('assentos-lista').innerText = poltronasEscolhidas.length > 0 ? poltronasEscolhidas.join(', ') : 'Nenhum';
+        }
+
+        // Função de envio mockada para testes visuais de front-end
+        function enviarReserva() {
+            if(poltronasEscolhidas.length === 0) {
+                alert("Selecione pelo menos um assento no mapa!");
+                return;
+            }
+
+            const nomePai = document.getElementById('nomePai').value;
+            const nomeFilha = document.getElementById('nomeFilha').value;
+            const email = document.getElementById('email').value.trim();
+            const telefone = document.getElementById('telefone').value;
+
+            if(!nomePai || !nomeFilha || !email || !telefone) {
+                alert("Por favor, preencha todos os dados no formulário acima do mapa.");
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert("Por favor, insira um e-mail válido contendo '@' e um formato correto.");
+                return;
+            }
+
+            const numerosApenas = telefone.replace(/\D/g, "");
+            if (numerosApenas.length < 10 || numerosApenas.length > 11) {
+                alert("Por favor, insira um número de WhatsApp válido contendo DDD.");
+                return;
+            }
+
+            // Inicia simulação visual de carregamento
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('btn-confirmar').disabled = true;
+
+            // Simula um atraso de requisição (1,5 segundos) antes de mostrar o sucesso
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('conteudo-sistema').style.display = 'none';
+                document.getElementById('tela-sucesso-reserva').style.display = 'block';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
