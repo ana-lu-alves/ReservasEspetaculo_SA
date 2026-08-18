@@ -40,23 +40,34 @@
         /* DECORAÇÕES MÁGICAS FLUTUANTES (FUNDO) */
         .decoracao {
             position: fixed;
-            font-size: 2.5rem;
-            opacity: 0.15;
+            opacity: 0.12; 
             z-index: -1;
             pointer-events: none;
-            animation: flutuar 8s ease-in-out infinite alternate;
+            animation-name: flutuar;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
         }
-        .d1 { top: 10%; left: 5%; animation-delay: 0s; font-size: 3rem;} /* Rosa */
-        .d2 { top: 25%; right: 8%; animation-delay: 1s; font-size: 4rem;} /* Relógio */
-        .d3 { top: 50%; left: 3%; animation-delay: 2s; font-size: 2.5rem;} /* Bule/Xícara */
-        .d4 { top: 75%; right: 6%; animation-delay: 0.5s; font-size: 3.5rem;} /* Cartas */
-        .d5 { top: 85%; left: 8%; animation-delay: 3s; font-size: 2rem;} /* Chave/Coelho */
-        .d6 { top: 40%; right: 12%; animation-delay: 1.5s; font-size: 2.5rem;} /* Cartas */
+        
+        .d1  { top: 8%; left: 4%; animation-delay: 0s; animation-duration: 8s; font-size: 3rem;} 
+        .d2  { top: 15%; right: 6%; animation-delay: 1s; animation-duration: 9s; font-size: 4.5rem;} 
+        .d3  { top: 45%; left: 3%; animation-delay: 2s; animation-duration: 7s; font-size: 2.5rem;} 
+        .d4  { top: 75%; right: 4%; animation-delay: 0.5s; animation-duration: 8.5s; font-size: 3.5rem;} 
+        .d5  { top: 88%; left: 6%; animation-delay: 3s; animation-duration: 7.5s; font-size: 3rem;} 
+        .d6  { top: 35%; right: 9%; animation-delay: 1.5s; animation-duration: 8s; font-size: 2.8rem;} 
+        .d7  { top: 65%; left: 10%; animation-delay: 0.8s; animation-duration: 9.5s; font-size: 3.5rem;} 
+        .d8  { top: 25%; left: 12%; animation-delay: 2.5s; animation-duration: 6.5s; font-size: 3.8rem;} 
+        .d9  { top: 55%; right: 12%; animation-delay: 1.2s; animation-duration: 8.2s; font-size: 3rem;} 
+        .d10 { top: 5%; left: 35%; animation-delay: 3.5s; animation-duration: 7s; font-size: 2rem;} 
+        .d11 { top: 92%; right: 35%; animation-delay: 0.2s; animation-duration: 10s; font-size: 2.5rem;} 
+        .d12 { top: 50%; left: 18%; animation-delay: 2.8s; animation-duration: 8.8s; font-size: 3.2rem;} 
+        .d13 { top: 82%; right: 20%; animation-delay: 1.7s; animation-duration: 7.3s; font-size: 3.5rem;} 
+        .d14 { top: 8%; right: 28%; animation-delay: 4s; animation-duration: 8.5s; font-size: 3rem;} 
 
         @keyframes flutuar {
             0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(10deg); }
-            100% { transform: translateY(5px) rotate(-10deg); }
+            50% { transform: translateY(-20px) rotate(15deg); }
+            100% { transform: translateY(10px) rotate(-10deg); }
         }
 
         /* TELA DE SUCESSO (ESTILO PÓS-COMPRA) */
@@ -83,24 +94,36 @@
             max-width: 850px; 
             margin: 0 auto 20px auto; 
             background-color: rgba(255, 255, 255, 0.05);
-            padding: 15px 20px;
+            padding: 15px 25px;
             border-radius: 15px;
             box-sizing: border-box;
             backdrop-filter: blur(5px);
         }
 
+        /* Container que dita o espaço físico ocupado na tela */
+        .logo-wrapper {
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            /* Sem overflow: hidden para não cortar a imagem */
+        }
+
+        /* Imagem da logo escalada para ficar grande sem ocupar mais espaço de layout */
         .logo-escola {
-            max-height: 80px; 
-            border-radius: 50%; 
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
-            object-fit: cover;
-            border: 3px solid var(--branco);
-            background-color: #fff;
+            max-width: 100%; 
+            max-height: 100%;
+            object-fit: contain;
+            transform: scale(1.6); /* Dá o zoom visual perfeito */
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5)); 
         }
 
         .header-text {
             text-align: left;
             color: var(--branco);
+            margin-left: 10px; /* Garante que a logo "crescida" não invada o texto */
         }
 
         .header-text .apresenta {
@@ -177,7 +200,6 @@
             color: var(--cor-destaque);
         }
 
-        /* ESTILOS DO NOVO TEXTO POÉTICO */
         .texto-poetico {
             margin-bottom: 15px;
         }
@@ -522,13 +544,16 @@
         /* REGRAS ESPECÍFICAS PARA CELULARES */
         @media (max-width: 768px) {
             .header-container { flex-direction: column; gap: 15px; text-align: center; background-color: transparent; backdrop-filter: none;}
-            .header-text { text-align: center; }
+            .logo-wrapper { width: 80px; height: 80px; margin-bottom: 10px;} 
+            .logo-escola { transform: scale(1.8); }
+            .header-text { text-align: center; margin-left: 0; }
             .header-text h2 { font-size: 1.8rem; }
             .cabecalho-mapa { text-align: center; }
             .cabecalho-mapa h3 { text-align: center; justify-content: center; }
             .sessao-confirmacao h3 { text-align: center; justify-content: center;}
             .dica-mobile { display: block; } 
             .poltrona { width: 26px; height: 26px; font-size: 9px; } 
+            .decoracao { font-size: 2rem !important; } 
         }
     </style>
 </head>
@@ -541,6 +566,14 @@
     <div class="decoracao d4">♠️</div>
     <div class="decoracao d5">🐇</div>
     <div class="decoracao d6">♥️</div>
+    <div class="decoracao d7">🍄</div>
+    <div class="decoracao d8">🎩</div>
+    <div class="decoracao d9">🗝️</div>
+    <div class="decoracao d10">♣️</div>
+    <div class="decoracao d11">♦️</div>
+    <div class="decoracao d12">🫖</div>
+    <div class="decoracao d13">👑</div>
+    <div class="decoracao d14">🐈</div>
 
     <!-- TELA DE SUCESSO DA RESERVA (Oculta por padrão) -->
     <div id="tela-sucesso-reserva" class="tela-sucesso-container" style="display: none;">
@@ -554,7 +587,10 @@
     <!-- CONTEÚDO PRINCIPAL DO SISTEMA -->
     <div id="conteudo-sistema" style="display: block;">
         <div class="header-container">
-            <img src="Logo_escola.jpg" alt="Logo Sexta Art" class="logo-escola" onerror="this.style.display='none'">
+            <!-- A logo usa transform: scale para não ser cortada em lugar nenhum -->
+            <div class="logo-wrapper">
+                <img src="logo.png" alt="Logo Sexta Art" class="logo-escola" onerror="this.style.display='none'">
+            </div>
             <div class="header-text">
                 <p class="apresenta">Sexta Art apresenta:</p>
                 <h2>Alice no País das Maravilhas</h2>
@@ -756,7 +792,6 @@
             });
         }
 
-        // Ao carregar a página, desenha o mapa livre e ajusta a máscara de telefone
         window.onload = function() {
             desenharMapa();
 
@@ -786,7 +821,6 @@
             document.getElementById('assentos-lista').innerText = poltronasEscolhidas.length > 0 ? poltronasEscolhidas.join(', ') : 'Nenhum';
         }
 
-        // Função de envio mockada para testes visuais de front-end
         function enviarReserva() {
             if(poltronasEscolhidas.length === 0) {
                 alert("Selecione pelo menos um assento no mapa!");
@@ -815,11 +849,9 @@
                 return;
             }
 
-            // Inicia simulação visual de carregamento
             document.getElementById('loading').style.display = 'block';
             document.getElementById('btn-confirmar').disabled = true;
 
-            // Simula um atraso de requisição (1,5 segundos) antes de mostrar o sucesso
             setTimeout(() => {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('conteudo-sistema').style.display = 'none';
