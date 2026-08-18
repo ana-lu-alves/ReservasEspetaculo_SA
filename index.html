@@ -543,17 +543,42 @@
 
         /* REGRAS ESPECÍFICAS PARA CELULARES */
         @media (max-width: 768px) {
-            .header-container { flex-direction: column; gap: 15px; text-align: center; background-color: transparent; backdrop-filter: none;}
-            .logo-wrapper { width: 80px; height: 80px; margin-bottom: 10px;} 
-            .logo-escola { transform: scale(1.8); }
+            .header-container { flex-direction: column; gap: 10px; text-align: center; background-color: transparent; backdrop-filter: none; padding: 10px;}
+            
+            .logo-wrapper { width: 70px; height: 70px; margin-bottom: 5px;} 
+            .logo-escola { transform: scale(1.6); }
+            
             .header-text { text-align: center; margin-left: 0; }
-            .header-text h2 { font-size: 1.8rem; }
-            .cabecalho-mapa { text-align: center; }
-            .cabecalho-mapa h3 { text-align: center; justify-content: center; }
-            .sessao-confirmacao h3 { text-align: center; justify-content: center;}
-            .dica-mobile { display: block; } 
-            .poltrona { width: 26px; height: 26px; font-size: 9px; } 
-            .decoracao { font-size: 2rem !important; } 
+            .header-text .apresenta { font-size: 0.8rem; }
+            .header-text h2 { font-size: 1.5rem; }
+            .header-text .direcao { font-size: 0.85rem; }
+            
+            .form-unificado { padding: 15px; }
+            .espetaculo-info { padding: 15px; margin-bottom: 20px;}
+            
+            .info-item { font-size: 0.85rem; }
+            .citacao { font-size: 0.9rem; margin-bottom: 10px; }
+            .sinopse { font-size: 0.85rem; margin-bottom: 10px;}
+            .destaque-poetico { font-size: 0.9rem; padding: 12px; margin: 15px 0; }
+            .chamada { font-size: 0.85rem; }
+
+            .sessao-dados h3, .cabecalho-mapa h3, .sessao-confirmacao h3 { 
+                font-size: 1.05rem; 
+                justify-content: center; 
+                text-align: center; 
+            }
+            
+            .campo-grupo label { font-size: 0.75rem; }
+            input { font-size: 0.85rem; padding: 10px; }
+            button { font-size: 0.95rem; padding: 14px; }
+            
+            .dica-mobile { display: block; font-size: 0.75rem; } 
+            .poltrona { width: 22px; height: 22px; font-size: 8px; } 
+            
+            .legenda { padding: 8px 15px; gap: 10px; }
+            .item-legenda { font-size: 0.75rem; }
+            
+            .decoracao { font-size: 1.5rem !important; } 
         }
     </style>
 </head>
@@ -594,7 +619,7 @@
             <div class="header-text">
                 <p class="apresenta">Sexta Art apresenta:</p>
                 <h2>Alice no País das Maravilhas</h2>
-                <p class="direcao">Uma viagem de dança, imaginação e encantamento.</p>
+                <p class="direcao">Direção: Laura Leão e Johelma Galvão</p>
             </div>
         </div>
 
@@ -631,15 +656,15 @@
                 <div class="grid-inputs">
                     <div class="campo-grupo">
                         <label for="nomePai">Nome do Responsável</label>
-                        <input type="text" id="nomePai" placeholder="Ex: Maria Alice" required>
+                        <input type="text" id="nomePai" placeholder="Ex: Johelma" required>
                     </div>
                     <div class="campo-grupo">
                         <label for="nomeFilha">Nome da Bailarina</label>
-                        <input type="text" id="nomeFilha" placeholder="Ex: Betina Bailarina" required>
+                        <input type="text" id="nomeFilha" placeholder="Ex: Helena " required>
                     </div>
                     <div class="campo-grupo">
                         <label for="email">E-mail para Ingressos</label>
-                        <input type="email" id="email" placeholder="Ex: email@exemplo.com" required>
+                        <input type="email" id="email" placeholder="Ex: laura@exemplo.com" required>
                     </div>
                     <div class="campo-grupo">
                         <label for="telefone">WhatsApp</label>
