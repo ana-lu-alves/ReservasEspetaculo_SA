@@ -875,14 +875,49 @@
                 return;
             }
 
+            // ⚠️ INSIRA A SUA URL DO GOOGLE APPS SCRIPT AQUI ABAIXO, ENTRE AS ASPAS:
+            const scriptURL = "https://script.google.com/macros/s/AKfycbznVX-49LsFfVuA8gev8vs8bJ19VXf91dBHBgVCKE_1CpYaJchNtfujvUesYQJc-P22/exec";
+
             document.getElementById('loading').style.display = 'block';
             document.getElementById('btn-confirmar').disabled = true;
+            document.getElementById('btn-confirmar').innerText = 'Enviando...';
 
-            setTimeout(() => {
+            // Agrupa os dados para enviar para a planilha
+            const dados = {
+                nomePai: nomePai,
+                nomeFilha: nomeFilha,
+                email: email,
+                telefone: telefone,
+                poltronasSolicitadas: poltronasEscolhidas
+            };
+
+            // Envia os dados para o Google Apps Script
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(dados)
+            })
+            .then(response => response.json())
+            .then(resultado => {
+                if(resultado.sucesso) {
+                    // Se a planilha confirmar que salvou, mostra a tela de sucesso
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('conteudo-sistema').style.display = 'none';
+                    document.getElementById('tela-sucesso-reserva').style.display = 'block';
+                } else {
+                    // Se algum assento já foi pego, avisa o usuário
+                    alert("Erro: " + resultado.mensagem);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('btn-confirmar').disabled = false;
+                    document.getElementById('btn-confirmar').innerText = 'Confirmar e Reservar';
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert("Houve um erro de conexão ao tentar reservar. Tente novamente.");
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('conteudo-sistema').style.display = 'none';
-                document.getElementById('tela-sucesso-reserva').style.display = 'block';
-            }, 1500);
+                document.getElementById('btn-confirmar').disabled = false;
+                document.getElementById('btn-confirmar').innerText = 'Confirmar e Reservar';
+            });
         }
     </script>
 </body>
