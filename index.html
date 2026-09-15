@@ -894,6 +894,10 @@
             // Envia os dados para o Google Apps Script
             fetch(scriptURL, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                redirect: 'follow', // Necessário para o Google Apps Script
                 body: JSON.stringify(dados)
             })
             .then(response => response.json())
