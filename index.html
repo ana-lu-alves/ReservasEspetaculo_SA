@@ -712,6 +712,9 @@
     </div>
 
     <script>
+        // ADICIONADO: Variável global com a URL do seu Google Apps Script
+        const scriptURL = "https://script.google.com/macros/s/AKfycbznVX-49LsFfVuA8gev8vs8bJ19VXf91dBHBgVCKE_1CpYaJchNtfujvUesYQJc-P22/exec";
+        
         let poltronasEscolhidas = [];
 
         const estruturaTeatro = [
@@ -818,6 +821,23 @@
             });
         }
 
+        // ADICIONADO: Função para buscar os assentos ocupados na planilha
+        function carregarAssentosOcupados() {
+            fetch(scriptURL)
+            .then(response => response.json())
+            .then(data => {
+                if(data.ocupados && data.ocupados.length > 0) {
+                    data.ocupados.forEach(item => {
+                        const poltronaOcupada = document.getElementById(item.poltrona);
+                        if(poltronaOcupada) {
+                            poltronaOcupada.classList.add('ocupada');
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error("Erro ao carregar mapa:", error));
+        }
+
         window.onload = function() {
             desenharMapa();
 
@@ -831,6 +851,9 @@
                     e.target.value = valor;
                 });
             }
+
+            // ADICIONADO: Chama a função que pinta os assentos de cinza ao carregar a página
+            carregarAssentosOcupados();
         };
 
         function selecionarPoltrona(idPoltrona) {
@@ -875,14 +898,10 @@
                 return;
             }
 
-            // ⚠️ INSIRA A SUA URL DO GOOGLE APPS SCRIPT AQUI ABAIXO, ENTRE AS ASPAS:
-            const scriptURL = "https://script.google.com/macros/s/AKfycbznVX-49LsFfVuA8gev8vs8bJ19VXf91dBHBgVCKE_1CpYaJchNtfujvUesYQJc-P22/exec";
-
             document.getElementById('loading').style.display = 'block';
             document.getElementById('btn-confirmar').disabled = true;
             document.getElementById('btn-confirmar').innerText = 'Enviando...';
 
-            // Agrupa os dados para enviar para a planilha
             const dados = {
                 nomePai: nomePai,
                 nomeFilha: nomeFilha,
@@ -891,24 +910,22 @@
                 poltronasSolicitadas: poltronasEscolhidas
             };
 
-            // Envia os dados para o Google Apps Script
+            // MODIFICADO: Agora usa a variável global scriptURL
             fetch(scriptURL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'text/plain;charset=utf-8',
                 },
-                redirect: 'follow', // Necessário para o Google Apps Script
+                redirect: 'follow',
                 body: JSON.stringify(dados)
             })
             .then(response => response.json())
             .then(resultado => {
                 if(resultado.sucesso) {
-                    // Se a planilha confirmar que salvou, mostra a tela de sucesso
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('conteudo-sistema').style.display = 'none';
                     document.getElementById('tela-sucesso-reserva').style.display = 'block';
                 } else {
-                    // Se algum assento já foi pego, avisa o usuário
                     alert("Erro: " + resultado.mensagem);
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('btn-confirmar').disabled = false;
