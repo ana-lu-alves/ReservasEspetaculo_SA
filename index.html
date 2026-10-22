@@ -328,7 +328,12 @@
             transition: opacity 0.3s ease;
             pointer-events: auto; 
         }
-
+        
+        .bloqueado {
+            pointer-events: none !important;
+            opacity: 0.5;
+        }
+        
         .palco-wrapper {
             position: sticky;
             top: 0;
@@ -678,7 +683,11 @@
                 <div class="cabecalho-mapa">
                     <h3>🎭 2. Selecione os assentos</h3>
                 </div>
+                <div id="mensagem-carregamento" style="color: var(--cor-destaque); font-weight: bold; text-align: center; margin-bottom: 15px; background: #FCE4EC; padding: 10px; border-radius: 8px;">
+                    ⏳ Sincronizando mapa de assentos... Aguarde.
+                </div>
 
+                <div class="teatro-container" id="container-do-teatro">
                 <div class="teatro-container" id="container-do-teatro">
                     <div class="palco-wrapper">
                         <div class="palco">PALCO</div>
@@ -821,8 +830,15 @@
             });
         }
 
-        // ADICIONADO: Função para buscar os assentos ocupados na planilha
+       // ADICIONADO: Função para buscar os assentos ocupados na planilha
         function carregarAssentosOcupados() {
+            const mensagemCarregamento = document.getElementById('mensagem-carregamento');
+            const mapaAssentos = document.getElementById('container-do-teatro');
+
+            // 1. Bloqueia o mapa antes de buscar
+            mapaAssentos.classList.add('bloqueado');
+            mensagemCarregamento.style.display = 'block';
+
             fetch(scriptURL)
             .then(response => response.json())
             .then(data => {
@@ -834,28 +850,19 @@
                         }
                     });
                 }
+                
+                // 2. Desbloqueia o mapa após carregar
+                mapaAssentos.classList.remove('bloqueado');
+                mensagemCarregamento.style.display = 'none';
             })
-            .catch(error => console.error("Erro ao carregar mapa:", error));
+            .catch(error => {
+                console.error("Erro ao carregar mapa:", error);
+                // 3. Em caso de erro, avisa o cliente
+                mensagemCarregamento.innerText = "⚠️ Erro ao sincronizar assentos. Por favor, recarregue a página.";
+                mensagemCarregamento.style.color = "red";
+            });
         }
-
-        window.onload = function() {
-            desenharMapa();
-
-            const inputTelefone = document.getElementById('telefone');
-            if (inputTelefone) {
-                inputTelefone.addEventListener('input', (e) => {
-                    let valor = e.target.value.replace(/\D/g, ""); 
-                    if (valor.length > 11) valor = valor.slice(0, 11); 
-                    valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
-                    valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
-                    e.target.value = valor;
-                });
-            }
-
-            // ADICIONADO: Chama a função que pinta os assentos de cinza ao carregar a página
-            carregarAssentosOcupados();
-        };
-
+        
         function selecionarPoltrona(idPoltrona) {
             const elemento = document.getElementById(idPoltrona);
             if(elemento.classList.contains('ocupada')) return;
