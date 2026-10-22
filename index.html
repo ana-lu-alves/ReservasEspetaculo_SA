@@ -972,17 +972,11 @@
                         document.getElementById('conteudo-sistema').style.display = 'none';
                         document.getElementById('tela-sucesso-reserva').style.display = 'block';
                     } else {
-                        // ATENÇÃO: Substitua "COLOQUE_AQUI_O_LINK_DA_SUA_PAGINA_PIX.html" pelo link real da sua página de pagamento
-                        window.location.href = "COLOQUE_AQUI_O_LINK_DA_SUA_PAGINA_PIX.html"; 
+                        // AVISO TEMPORÁRIO PARA TESTES
+                        document.getElementById('loading').style.display = 'none';
+                        alert("✅ Reserva comum salva na planilha! A tela do PIX entrará aqui futuramente.");
+                        // window.location.href = "pagina-do-pix.html"; 
                     }
-                    
-                } else {
-                    alert("Erro: " + resultado.mensagem);
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('btn-confirmar').disabled = false;
-                    document.getElementById('btn-confirmar').innerText = 'Confirmar e Reservar';
-                }
-            })
             .catch(error => {
                 console.error('Erro:', error);
                 alert("Houve um erro de conexão ao tentar reservar. Tente novamente.");
