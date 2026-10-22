@@ -108,10 +108,9 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            /* Sem overflow: hidden para não cortar a imagem */
         }
 
-        /* Imagem da logo escalada para ficar grande sem ocupar mais espaço de layout */
+        /* Imagem da logo escalada */
         .logo-escola {
             max-width: 100%; 
             max-height: 100%;
@@ -123,7 +122,7 @@
         .header-text {
             text-align: left;
             color: var(--branco);
-            margin-left: 10px; /* Garante que a logo "crescida" não invada o texto */
+            margin-left: 10px;
         }
 
         .header-text .apresenta {
@@ -583,7 +582,6 @@
             .legenda { padding: 8px 15px; gap: 10px; }
             .item-legenda { font-size: 0.75rem; }
             
-            /* AQUI ESTÁ O AJUSTE: Emojis maiores no celular, sem mexer no desktop! */
             .decoracao { font-size: 2.5rem !important; } 
         }
     </style>
@@ -688,7 +686,6 @@
                 </div>
 
                 <div class="teatro-container" id="container-do-teatro">
-                <div class="teatro-container" id="container-do-teatro">
                     <div class="palco-wrapper">
                         <div class="palco">PALCO</div>
                     </div>
@@ -721,10 +718,12 @@
     </div>
 
     <script>
-        // ADICIONADO: Variável global com a URL do seu Google Apps Script
         const scriptURL = "https://script.google.com/macros/s/AKfycbznVX-49LsFfVuA8gev8vs8bJ19VXf91dBHBgVCKE_1CpYaJchNtfujvUesYQJc-P22/exec";
         
         let poltronasEscolhidas = [];
+        const urlParams = new URLSearchParams(window.location.search);
+        let tokenCortesia = urlParams.get('token');
+        let limiteCortesia = null;
 
         const estruturaTeatro = [
             { row: 'A', esq: [31, 25], cen: [24, 9], dir: [8, 3] },
@@ -830,35 +829,65 @@
             });
         }
 
-       // ADICIONADO: Função para buscar os assentos ocupados na planilha
+        window.onload = function() {
+            desenharMapa();
+
+            const inputTelefone = document.getElementById('telefone');
+            if (inputTelefone) {
+                inputTelefone.addEventListener('input', (e) => {
+                    let valor = e.target.value.replace(/\D/g, ""); 
+                    if (valor.length > 11) valor = valor.slice(0, 11); 
+                    valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
+                    valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
+                    e.target.value = valor;
+                });
+            }
+
+            carregarAssentosOcupados();
+        };
+
         function carregarAssentosOcupados() {
             const mensagemCarregamento = document.getElementById('mensagem-carregamento');
             const mapaAssentos = document.getElementById('container-do-teatro');
 
-            // 1. Bloqueia o mapa antes de buscar
             mapaAssentos.classList.add('bloqueado');
             mensagemCarregamento.style.display = 'block';
 
-            fetch(scriptURL)
+            // Anexa o token na URL da API, se ele existir
+            let urlDaApi = scriptURL;
+            if (tokenCortesia) {
+                urlDaApi += "?token=" + tokenCortesia;
+            }
+
+            fetch(urlDaApi)
             .then(response => response.json())
             .then(data => {
+                // Marca ocupadas
                 if(data.ocupados && data.ocupados.length > 0) {
                     data.ocupados.forEach(item => {
                         const poltronaOcupada = document.getElementById(item.poltrona);
-                        if(poltronaOcupada) {
-                            poltronaOcupada.classList.add('ocupada');
-                        }
+                        if(poltronaOcupada) poltronaOcupada.classList.add('ocupada');
                     });
                 }
                 
-                // 2. Desbloqueia o mapa após carregar
+                // Verifica se é um link de cortesia válido
+                if(data.cortesia) {
+                    if(data.cortesia.valido) {
+                        limiteCortesia = data.cortesia.limite;
+                        mensagemCarregamento.innerText = `✨ Ingresso Cortesia ativado! Escolha até ${limiteCortesia} assento(s).`;
+                        mensagemCarregamento.style.color = "#48BB78";
+                    } else {
+                        alert("Este link de cortesia é inválido ou já foi utilizado.");
+                        tokenCortesia = null; // Invalida o token no frontend
+                    }
+                } else {
+                    mensagemCarregamento.style.display = 'none';
+                }
+                
                 mapaAssentos.classList.remove('bloqueado');
-                mensagemCarregamento.style.display = 'none';
             })
             .catch(error => {
-                console.error("Erro ao carregar mapa:", error);
-                // 3. Em caso de erro, avisa o cliente
-                mensagemCarregamento.innerText = "⚠️ Erro ao sincronizar assentos. Por favor, recarregue a página.";
+                mensagemCarregamento.innerText = "⚠️ Erro ao sincronizar assentos.";
                 mensagemCarregamento.style.color = "red";
             });
         }
@@ -866,6 +895,14 @@
         function selecionarPoltrona(idPoltrona) {
             const elemento = document.getElementById(idPoltrona);
             if(elemento.classList.contains('ocupada')) return;
+
+            // BLOQUEIO DE LIMITE DE CORTESIA
+            if (limiteCortesia && !elemento.classList.contains('selecionada')) {
+                if (poltronasEscolhidas.length >= limiteCortesia) {
+                    alert(`Sua cortesia permite no máximo ${limiteCortesia} assento(s).`);
+                    return;
+                }
+            }
 
             if(elemento.classList.contains('selecionada')) {
                 elemento.classList.remove('selecionada');
@@ -876,7 +913,7 @@
             }
             document.getElementById('assentos-lista').innerText = poltronasEscolhidas.length > 0 ? poltronasEscolhidas.join(', ') : 'Nenhum';
         }
-
+        
         function enviarReserva() {
             if(poltronasEscolhidas.length === 0) {
                 alert("Selecione pelo menos um assento no mapa!");
@@ -914,10 +951,10 @@
                 nomeFilha: nomeFilha,
                 email: email,
                 telefone: telefone,
-                poltronasSolicitadas: poltronasEscolhidas
+                poltronasSolicitadas: poltronasEscolhidas,
+                token: tokenCortesia 
             };
 
-            // MODIFICADO: Agora usa a variável global scriptURL
             fetch(scriptURL, {
                 method: 'POST',
                 headers: {
@@ -929,9 +966,16 @@
             .then(response => response.json())
             .then(resultado => {
                 if(resultado.sucesso) {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('conteudo-sistema').style.display = 'none';
-                    document.getElementById('tela-sucesso-reserva').style.display = 'block';
+                    
+                    if(resultado.isCortesia) {
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('conteudo-sistema').style.display = 'none';
+                        document.getElementById('tela-sucesso-reserva').style.display = 'block';
+                    } else {
+                        // ATENÇÃO: Substitua "COLOQUE_AQUI_O_LINK_DA_SUA_PAGINA_PIX.html" pelo link real da sua página de pagamento
+                        window.location.href = "COLOQUE_AQUI_O_LINK_DA_SUA_PAGINA_PIX.html"; 
+                    }
+                    
                 } else {
                     alert("Erro: " + resultado.mensagem);
                     document.getElementById('loading').style.display = 'none';
